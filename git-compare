@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+base=$1
+compare=$2
+branch=$(git symbolic-ref --short HEAD)
+
+# Create compare path
+if [[ -n "${base}" && -n "${compare}" ]]; then
+    path="${base}...${compare}"
+elif [[ -n "${base}" && -z "${compare}" ]]; then
+    path="${base}...${branch}"
+else
+    path="$branch"
+fi
+
+# Change url (ssh to https)
+remote=$(git config --get remote.origin.url)
+remote=$(echo ${remote} | sed 's/\.git$//g')
+if [[ ${remote} == git@* ]]; then
+    remote=$(echo ${remote} | sed 's/\:/\//g')
+    remote=$(echo ${remote} | sed 's/git\@/https\:\/\//g')
+fi
+
+# Open compare url
+open $(echo -e "${remote}/compare/${path}")
+

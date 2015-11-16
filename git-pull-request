@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+base=$1
+head=$2
+user=$(git config --global user.email)
+project=$(git config remote.origin.url | sed 's/^.*://' | sed 's/\.git$//')
+
+# Check for head
+if [[ -z "${head}" ]]; then
+    head=$(git symbolic-ref --short HEAD)
+fi
+
+# Change url (ssh to https)
+remote=$(git config --get remote.origin.url)
+remote=$(echo ${remote} | sed 's/\.git$//g')
+if [[ ${remote} == git@* ]]; then
+    remote=$(echo ${remote} | sed 's/\:/\//g')
+    remote=$(echo ${remote} | sed 's/git\@/https\:\/\//g')
+fi
+
+echo "Creating pull-request for: ${base} ← ${head}"
+echo -n "Title: " && read title
+echo -n "Body : " && read body
+
+read -r -d '' json << JSON
+{
+   "title": "${title}",
+   "body": "${body}",
+   "head": "${head}",
+   "base": "${base}"
+}
+JSON
+curl -s "https://api.github.com/repos/${project}/pulls" -d "$body"

@@ -22,5 +22,4 @@ if [[ ${remote} == git@* ]]; then
 fi
 
 # Open compare url
-open $(echo -e "${remote}/compare/${path}")
-
+open $(echo -e "${remote}/compare/${path}?expand=1")
